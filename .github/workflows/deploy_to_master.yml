@@ -3,7 +3,7 @@ name: Update Databricks Repo on PR Merge to Master
 on:
  push:
   branches:
-   - master
+   - main
 
 jobs:
  update-repo:
