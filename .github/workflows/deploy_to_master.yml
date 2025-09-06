@@ -1,0 +1,66 @@
+name: Update Databricks Repo on PR Merge to Master
+
+on:
+ push:
+  branches:
+   - master
+
+jobs:
+ update-repo:
+  runs-on: ubuntu-latest
+
+  steps:
+  - name: Checkout repository
+    uses: actions/checkout@v2
+
+  - name: Set up Python
+    uses: actions/setup-python@v2
+	with:
+	 python-version: '3.12.3' # Use the appropriate python version
+
+  - name: Install Dependencies
+    run: |
+	 python -m pip install --upgrade pip
+	 pip install requests
+	 
+  -name: Run Databricks Repo Update Script
+   run: |
+    python -c "
+	import requests
+	import json
+	 
+	# Set your Databricks workspace URL and personal access token
+	DATABRICKS_URL='https://adb-3605750019002736.16.azuredatabricks.net/'
+	TOKEN = 'dapif12b4c91da44cd7a89c0a7ec8e33ae70'
+	
+	#Define the repo id you want to update
+	repo_id  = 3912074432659232
+	
+	#Define the new branch or tag you want to update the repo to
+	new_branch_or_tag='main'
+	
+	#Set up the API endpoint
+	endpoint= f'{DATABRICKS_URL}/api/2.0/repos/{repo_id}'
+	
+	#Prepare the payload with the new branch or tag
+	payload = {
+	   'branch': new_branch_or_tag
+	}
+	
+	#Define the headers including the authorization token
+	headers: {
+	   'Authorization': f'Bearer {TOKEN}',
+	   'Content-Type': 'application/json'
+	}
+	
+	#Send the Patch request to update the repo
+	response = requests.patch(endpoint,headers=headers,data=json.dumps(payload))
+	
+	#Check if the request was successfull
+	if response.status_code == 200:
+	   repo_details = repsonse.json()
+	   print('Repository updated successfully:',repo_details)
+	else:
+	   print(f'Failed to update repo:{response_status_code}- [response_text}')
+	"
+
